@@ -222,6 +222,8 @@ function friendlyError(err) {
   if (/Chave recusada|GEMINI_API_KEY|API key/i.test(m)) return "Chave da API recusada ou ausente. Confira o GEMINI_API_KEY no .env e reinicie o servidor.";
   if (/Limite da API|429/i.test(m)) return "Você bateu o limite gratuito da API. Espere um minuto e tente de novo.";
   if (/Failed to fetch|NetworkError/i.test(m)) return "Sem resposta do servidor. O npm start está rodando?";
+  if (/is not found for API version|NOT_FOUND|models\/.* is not found/i.test(m)) return "O modelo configurado em GEMINI_MODEL não existe na API do Gemini. Confira o nome do modelo no .env (ou nas variáveis de ambiente do deploy) e reinicie/redeploy. (" + m + ")";
+  if (/^HTTP 404$/.test(m)) return "Não encontrei o endpoint /api/generate neste deploy (404). Se você estiver na Vercel, confira o vercel.json e o redeploy; localmente, confira se o npm start está rodando.";
   return "O modelo não devolveu um JSON válido. Tente de novo — às vezes a segunda sai limpa. (" + m + ")";
 }
 
