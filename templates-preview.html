@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DomineAqui · Preview dos 12 templates</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/templates.css">
+<style>
+  body { margin: 0; background: #23262b; color: #e9e6df; font-family: "Space Grotesk", system-ui, sans-serif; padding: 32px; }
+  h1 { font-weight: 500; font-size: 20px; letter-spacing: 0.02em; }
+  .note { opacity: 0.6; font-size: 13px; margin-bottom: 28px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, 324px); gap: 40px 28px; }
+  .cell { width: 324px; }
+  .cell figcaption { font: 500 13px/1 "JetBrains Mono", monospace; opacity: 0.7; margin-bottom: 8px; letter-spacing: 0.04em; }
+  .frame { width: 324px; height: 405px; overflow: hidden; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,0.4); }
+  .stage { transform: scale(0.3); transform-origin: top left; }
+</style>
+</head>
+<body>
+<h1>DomineAqui Carousel Engine — 12 templates (mock)</h1>
+<p class="note">Escala 30% · canvas real 1080×1350 · conteúdo ilustrativo, substituído pelo Gemini em runtime</p>
+<div class="grid" id="grid"></div>
+
+<script>
+const L_DARK = "assets/logo_darkmode.svg";   // sobre fundo escuro
+const L_LIGHT = "assets/logo.svg";           // sobre fundo claro
+const brand = (logo) => `<div class="slide__brand"><img class="slide__logo" src="${logo}" alt=""><span class="slide__handle">@domineaqui</span></div>`;
+const idx = (n) => `<div class="slide__index">${n} / 08</div>`;
+
+const MOCK = [
+  { id:"brutal", surface:"dark", logo:L_DARK, html:`
+    ${idx("01")}
+    <p class="tpl-kicker">R1 · a verdade</p>
+    <h2 class="tpl-headline">Você estuda <span class="tpl-destaque">errado</span>. E ninguém te avisou.</h2>
+    ${brand(L_DARK)}` },
+
+  { id:"confissao", surface:"light", logo:L_LIGHT, html:`
+    ${idx("02")}
+    <p class="tpl-kicker">uma confissão</p>
+    <h2 class="tpl-headline">A gente <span class="tpl-destaque">errou</span> com você.</h2>
+    <p class="tpl-sub">E vamos consertar isso agora, sem rodeio.</p>
+    ${brand(L_LIGHT)}` },
+
+  { id:"dado", surface:"light", logo:L_LIGHT, html:`
+    ${idx("03")}
+    <p class="tpl-kicker">prova prática</p>
+    <div class="dado__num">73<span class="tpl-destaque">%</span></div>
+    <p class="tpl-body">dos R1 reprovam a <span class="tpl-destaque">primeira</span> avaliação. Quase ninguém fala disso.</p>
+    ${brand(L_LIGHT)}` },
+
+  { id:"split", surface:"dark", logo:L_DARK, html:`
+    <div class="split__antes">
+      <span class="split__tag">antes</span>
+      <h2 class="tpl-headline">Decoreba que evapora na prova.</h2>
+    </div>
+    <div class="split__depois">
+      <span class="split__tag">depois</span>
+      <h2 class="tpl-headline">Raciocínio que fica.</h2>
+    </div>` },
+
+  { id:"citacao", surface:"light", logo:L_LIGHT, html:`
+    ${idx("05")}
+    <div class="citacao__mark">&ldquo;</div>
+    <p class="tpl-body">Foi a <span class="tpl-destaque">única</span> coisa que mudou meu jeito de estudar.</p>
+    <p class="tpl-sub">Marina, R1 de Clínica Médica</p>
+    ${brand(L_LIGHT)}` },
+
+  { id:"lista", surface:"dark", logo:L_DARK, html:`
+    ${idx("06")}
+    <p class="tpl-kicker">como funciona</p>
+    <div class="lista__items">
+      <div class="lista__row"><span class="lista__n">01</span><span class="lista__txt">Você responde antes de ler a teoria</span></div>
+      <div class="lista__row"><span class="lista__n">02</span><span class="lista__txt">O seu erro vira a aula daquele dia</span></div>
+      <div class="lista__row"><span class="lista__n">03</span><span class="lista__txt">A revisão volta no dia certo, sozinha</span></div>
+    </div>
+    ${brand(L_DARK)}` },
+
+  { id:"timeline", surface:"light", logo:L_LIGHT, html:`
+    ${idx("07")}
+    <p class="tpl-kicker">seus próximos 90 dias</p>
+    <div class="tl">
+      <div class="tl__node"><div class="tl__when">dia 1</div><div class="tl__what">Diagnóstico do seu buraco de base</div></div>
+      <div class="tl__node"><div class="tl__when">semana 3</div><div class="tl__what">Primeiro ciclo de questões guiadas</div></div>
+      <div class="tl__node"><div class="tl__when">dia 90</div><div class="tl__what">Simulado no nível da prova real</div></div>
+    </div>
+    ${brand(L_LIGHT)}` },
+
+  { id:"comparativo", surface:"light", logo:L_LIGHT, html:`
+    ${idx("08")}
+    <h2 class="tpl-headline">Cursinho <span class="tpl-destaque">x</span> DomineAqui</h2>
+    <div class="cmp">
+      <div class="cmp__col cmp__col--eles">
+        <div class="cmp__head">cursinho</div>
+        <div class="cmp__item"><span class="cmp__mark">✗</span><span>Aula gravada de 3 horas</span></div>
+        <div class="cmp__item"><span class="cmp__mark">✗</span><span>Você assiste e esquece</span></div>
+      </div>
+      <div class="cmp__col cmp__col--voce">
+        <div class="cmp__head">domineaqui</div>
+        <div class="cmp__item"><span class="cmp__mark">✓</span><span>Questão primeiro, teoria depois</span></div>
+        <div class="cmp__item"><span class="cmp__mark">✓</span><span>Revisão no dia certo</span></div>
+      </div>
+    </div>
+    ${brand(L_LIGHT)}` },
+
+  { id:"revelacao", surface:"dark", logo:L_DARK, html:`
+    <p class="tpl-kicker">lembra daquele erro?</p>
+    <h2 class="tpl-headline">O problema nunca foi o <span class="tpl-destaque">tanto</span> que você estuda.</h2>
+    <p class="tpl-body">É a ordem. Teoria antes da pergunta anestesia o cérebro.</p>` },
+
+  { id:"oferta", surface:"dark", logo:L_DARK, html:`
+    ${idx("09")}
+    <p class="tpl-kicker">matrícula aberta</p>
+    <div class="oferta__anchor">R$ 2.400 num cursinho</div>
+    <div class="oferta__label">hoje</div>
+    <div class="oferta__price">R$ 497</div>
+    <p class="tpl-body">12x no cartão. <span class="tpl-destaque">40 vagas</span> nesta turma.</p>
+    ${brand(L_DARK)}` },
+
+  { id:"cta", surface:"dark", logo:L_DARK, html:`
+    <img class="cta__logo" src="${L_DARK}" alt="DomineAqui">
+    <h2 class="tpl-headline">Comece o próximo ciclo <span class="tpl-destaque">hoje</span>.</h2>
+    <div class="cta__btn">Quero minha vaga</div>
+    <div class="cta__url">domineaqui.com.br</div>` },
+
+  { id:"terminal", surface:"dark", logo:L_DARK, html:`
+    <div class="term__prompt">residente@domineaqui:~$ <span class="term__sig">./aprovar</span></div>
+    <h2 class="tpl-headline">Menos aula. Mais questão.<span class="term__cursor"></span></h2>
+    <p class="tpl-body">// o método que trata estudo como treino, não como assistir vídeo.</p>` },
+];
+
+const grid = document.getElementById("grid");
+for (const t of MOCK) {
+  const cell = document.createElement("figure");
+  cell.className = "cell";
+  cell.innerHTML = `<figcaption>${t.id}</figcaption>
+    <div class="frame"><div class="stage"><div class="slide" data-template="${t.id}" data-surface="${t.surface}">${t.html}</div></div></div>`;
+  grid.appendChild(cell);
+}
+</script>
+</body>
+</html>

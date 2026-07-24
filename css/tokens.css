@@ -1,0 +1,117 @@
+/* Hallmark · system: instagram-carousel (1080×1350) · tone: brutal-editorial-medical · anchor hue: warm-orange
+ * pre-emit critique: P5 H5 E4 S5 R4 V4
+ * Carousel adaptation: page-flow apparatus (nav/footer/hero archetypes, macrostructure
+ *   rotation) does not map to a 4:5 slide. The disciplines that DO apply are enforced here:
+ *   locked tokens (every colour + font-family below is a named var), OKLCH colour, 4pt scale,
+ *   named easings, roman display type, AA contrast. OKLCH renders via html2canvas-pro.
+ * Brand palette source: DomineAqui — hex in comments, OKLCH is the live value.
+ */
+
+/* ─── Fonts (self-hosted, offline-safe for html2canvas export) ─────────────── */
+@font-face {
+  font-family: "Anton";
+  src: url("../assets/fonts/anton-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("../assets/fonts/fraunces-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("../assets/fonts/fraunces-600.woff2") format("woff2");
+  font-weight: 600; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("../assets/fonts/fraunces-900.woff2") format("woff2");
+  font-weight: 900; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../assets/fonts/spacegrotesk-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../assets/fonts/spacegrotesk-500.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../assets/fonts/spacegrotesk-700.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../assets/fonts/jetbrainsmono-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../assets/fonts/jetbrainsmono-700.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: block;
+}
+
+:root {
+  /* ─── Brand colour (OKLCH live · hex reference) ─────────────────────────── */
+  --color-green-950: oklch(0.22 0.045 168);  /* #072016  fundo revelação/CTA */
+  --color-green-900: oklch(0.32 0.060 168);  /* #0B3D2E  verde escuro base   */
+  --color-green-800: oklch(0.40 0.072 165);  /* #14543F  verde escuro claro  */
+  --color-green-500: oklch(0.58 0.090 162);  /* #2E8B63  verde vivo (nós/linha) */
+
+  --color-orange:      oklch(0.70 0.190 45);  /* #FF6B1A  laranja destaque    */
+  --color-orange-soft: oklch(0.76 0.145 55);  /* #FF8C42  laranja suave       */
+
+  --color-paper:  oklch(0.968 0.006 95);      /* #F7F5F0  off-white           */
+  --color-paper-2: oklch(0.925 0.010 95);     /* #ECE8DF  off-white sombreado */
+  --color-ink:    oklch(0.22 0 0);            /* #1A1A1A  grafite             */
+  --color-ink-2:  oklch(0.42 0.006 250);      /* #5C5F66  cinza secundário    */
+
+  --color-red:    oklch(0.53 0.170 28);       /* #B23A2E  X do comparativo    */
+  --color-line:   oklch(0.86 0.008 95);       /* filete claro sobre paper     */
+  --color-line-dark: oklch(0.44 0.045 168);   /* filete sobre verde           */
+
+  /* ─── Fonts ─────────────────────────────────────────────────────────────── */
+  --font-display: "Anton", "Arial Narrow", sans-serif;   /* condensada, brutal */
+  --font-serif:   "Fraunces", Georgia, serif;            /* display serifado    */
+  --font-sans:    "Space Grotesk", system-ui, sans-serif;/* corpo + interface   */
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  /* ─── Type scale (px — canvas é 1080×1350 fixo) ─────────────────────────── */
+  --text-kicker: 26px;
+  --text-body:   34px;
+  --text-sub:    46px;
+  --text-h3:     64px;
+  --text-h2:     100px;
+  --text-h1:     150px;
+  --text-display: 210px;
+  --text-mega:    340px;
+
+  /* ─── Spacing — escala 4pt ──────────────────────────────────────────────── */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px;  --space-6: 24px;  --space-8: 32px;  --space-10: 40px;
+  --space-12: 48px; --space-16: 64px; --space-20: 80px; --space-24: 96px;
+  --space-32: 128px;
+  --pad-slide: 88px;   /* margem de segurança interna do slide */
+
+  /* ─── Linhas / raios ────────────────────────────────────────────────────── */
+  --rule:      2px;
+  --rule-bold: 8px;
+  --radius-none: 0px;
+  --radius-sm:  6px;
+  --radius-pill: 999px;
+
+  /* ─── Motion (só interface; o canvas exportado é estático) ──────────────── */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in:     cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 150ms;
+  --dur-mid:  260ms;
+  --dur-slow: 480ms;
+
+  /* ─── Canvas ────────────────────────────────────────────────────────────── */
+  --canvas-w: 1080px;
+  --canvas-h: 1350px;
+}

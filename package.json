@@ -1,0 +1,23 @@
+{
+  "name": "domineaqui-carousel",
+  "version": "1.0.0",
+  "description": "Gerador de carrosséis de Instagram: copy pelo Gemini, layout em templates locais, export PNG no browser.",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "icons": "node scripts/gen-icons.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "html2canvas-pro": "^1.5.11",
+    "jszip": "^3.10.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3"
+  }
+}

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DomineAqui · Carousel Engine</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B3D2E">
+<link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DomineAqui">
+
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/templates.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ─── Barra superior ─────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar__brand">
+      <img src="assets/logo.svg" alt="DomineAqui" class="topbar__logo">
+      <span class="topbar__name">Carousel Engine</span>
+    </div>
+
+    <div class="topbar__meta">
+      <div class="hook" id="hookMeter" hidden>
+        <span class="hook__label">hook</span>
+        <div class="hook__bar"><i id="hookFill" style="width:0%"></i></div>
+        <span class="hook__val" id="hookVal">—</span>
+      </div>
+      <div class="counter" id="counter" hidden><b id="counterN">0</b> slides</div>
+    </div>
+
+    <div class="topbar__actions">
+      <button class="btn btn--primary" id="btnGerar" form="genForm">Gerar carrossel</button>
+      <button class="btn btn--ghost" id="btnExport" disabled>Exportar</button>
+      <button class="btn btn--ghost" id="btnLimpar" disabled>Limpar</button>
+    </div>
+  </header>
+
+  <div class="split">
+
+    <!-- ─── Formulário (esquerda, sticky) ────────────────────────────────── -->
+    <aside class="panel">
+      <form id="genForm" class="form" autocomplete="off">
+
+        <div class="form__presets">
+          <label class="field__label" for="presetSel">Presets de produto</label>
+          <div class="row">
+            <select id="presetSel" class="input"><option value="">—</option></select>
+            <button type="button" class="btn btn--mini" id="presetSave" title="Salvar campos atuais como preset">salvar</button>
+            <button type="button" class="btn btn--mini" id="presetDel" title="Apagar preset selecionado">apagar</button>
+          </div>
+        </div>
+
+        <hr class="rule">
+
+        <div class="field">
+          <label class="field__label" for="produto">Produto <span class="req">obrigatório</span></label>
+          <input id="produto" name="produto" class="input" required placeholder="Ex.: Trilha R1 — método de questões guiadas">
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="oque">O que é</label>
+          <textarea id="oque" name="oque" class="input" rows="2" placeholder="Uma linha explicando o que é o produto"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="resolve">O que resolve</label>
+          <textarea id="resolve" name="resolve" class="input" rows="2" placeholder="A dor concreta que o produto elimina"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="diferencial">Diferencial <span class="req">obrigatório</span></label>
+          <textarea id="diferencial" name="diferencial" class="input" rows="3" required placeholder="O que só você faz. É daqui que sai a persuasão."></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="valor">Valor</label>
+          <input id="valor" name="valor" class="input" placeholder="Ex.: R$ 497 — ativa ancoragem na oferta">
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="qtd">Quantidade de slides <b id="qtdOut" class="field__out">8</b></label>
+          <input id="qtd" name="qtd" class="range" type="range" min="5" max="12" value="8" step="1">
+        </div>
+
+        <div class="field">
+          <label class="field__label">Formato</label>
+          <div class="seg" id="formato">
+            <button type="button" class="seg__btn" data-fmt="4x5" aria-pressed="true">4:5 · feed</button>
+            <button type="button" class="seg__btn" data-fmt="9x16" aria-pressed="false">9:16 · reels</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label">Gatilhos mentais <span class="hint" id="gatCount">0/4</span></label>
+          <div class="chips" id="gatilhos"></div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="tom">Tom</label>
+          <select id="tom" name="tom" class="input">
+            <option value="storytelling">Storytelling</option>
+            <option value="confronto">Confronto direto</option>
+            <option value="caso">Caso clínico</option>
+            <option value="dado">Dado que choca</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="template">
+            Template dos slides
+            <button type="button" class="fav" id="favTpl" title="Favoritar template">☆</button>
+          </label>
+          <select id="template" name="template" class="input"></select>
+          <small class="field__note" id="tplNote">A IA escolhe o melhor template de cada slide.</small>
+        </div>
+      </form>
+    </aside>
+
+    <!-- ─── Preview (direita) ────────────────────────────────────────────── -->
+    <section class="preview" id="preview">
+      <!-- estado inicial -->
+      <div class="empty" id="stateIdle">
+        <p class="empty__big">Preencha o produto e o diferencial.</p>
+        <p class="empty__sub">O Gemini escreve a copy. Os templates locais montam o visual. Você edita tudo antes de exportar.</p>
+      </div>
+
+      <!-- erro -->
+      <div class="errbox" id="stateError" hidden>
+        <p class="errbox__msg" id="errMsg">Algo falhou.</p>
+        <button class="btn btn--primary" id="btnRetry">Tentar de novo</button>
+      </div>
+
+      <!-- grid de slides -->
+      <div class="deck" id="deck" hidden></div>
+    </section>
+  </div>
+</div>
+
+<!-- Editor inline (drawer) -->
+<div class="drawer" id="drawer" hidden>
+  <div class="drawer__scrim" id="drawerScrim"></div>
+  <div class="drawer__panel">
+    <div class="drawer__head">
+      <span id="drawerTitle">Slide</span>
+      <button class="btn btn--mini" id="drawerClose">fechar</button>
+    </div>
+    <div class="drawer__body" id="drawerBody"></div>
+  </div>
+</div>
+
+<!-- Legenda / hashtags -->
+<div class="drawer" id="captionDrawer" hidden>
+  <div class="drawer__scrim" data-close="caption"></div>
+  <div class="drawer__panel">
+    <div class="drawer__head"><span>Legenda + hashtags</span><button class="btn btn--mini" data-close="caption">fechar</button></div>
+    <div class="drawer__body" id="captionBody"></div>
+  </div>
+</div>
+
+<!-- libs locais (servidas pelo Express a partir de node_modules) -->
+<script src="/vendor/html2canvas.min.js"></script>
+<script src="/vendor/jszip.min.js"></script>
+<script type="module" src="js/app.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+  }
+</script>
+</body>
+</html>
