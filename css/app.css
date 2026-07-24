@@ -205,6 +205,13 @@ select.input { cursor: pointer; }
 .ed label { font: 600 12px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ui-muted); }
 .ed .count { margin-left: auto; }
 .ed textarea, .ed input, .ed select { width: 100%; }
+/* editor de mockup */
+.ed--mockup { border-top: var(--rule) solid var(--ui-line); padding-top: var(--space-5); }
+.mockup-opts { display: flex; flex-direction: column; gap: var(--space-4); margin-top: var(--space-2); }
+.mockup-row { display: flex; flex-direction: column; gap: var(--space-2); }
+.mockup-row__lab { font: 600 12px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ui-muted); }
+.mockup-row .btn--mini { align-self: flex-start; }
+
 .caption-block { margin-bottom: var(--space-6); }
 .caption-block h4 { font: 700 13px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ui-muted); margin: 0 0 var(--space-2); }
 .caption-block pre { white-space: pre-wrap; font: 400 14px/1.5 var(--font-sans); background: #fff; border: var(--rule) solid var(--ui-line-2); border-radius: var(--radius-sm); padding: var(--space-4); margin: 0 0 var(--space-2); }

@@ -1,8 +1,9 @@
 // templates.js — registry dos 12 templates: injeta o JSON do Gemini nos slots.
 import { TEMPLATES } from "./prompts.js";
 
-const DARK = new Set(["brutal", "split", "lista", "revelacao", "oferta", "cta", "terminal", "checklist", "mito"]);
+const DARK = new Set(["brutal", "split", "lista", "revelacao", "oferta", "cta", "terminal", "checklist", "mito", "showcase"]);
 const NOCHROME = new Set(["split", "cta", "mito"]);
+const DEVICE_TYPES = new Set(["phone", "tablet"]);
 
 export const TEMPLATE_IDS = TEMPLATES.map((t) => t.id);
 export const RATIO_H = { "4x5": 1350, "9x16": 1920 };   // altura em px por formato
@@ -25,6 +26,40 @@ function hl(text, destaque) {
 
 const brand = (tpl) => `<div class="slide__brand"><img class="slide__logo" src="${logoFor(tpl)}" alt=""><span class="slide__handle">@domineaqui</span></div>`;
 const index = (n, total) => `<div class="slide__index">${pad(n)} / ${pad(total)}</div>`;
+
+// ─── Mockups de dispositivo (celular / tablet) ─────────────────────────────────
+// O "3D ultrarrealista" vem de material (bisel metálico, brilho de vidro, sombra de
+// contato) — NÃO de transform 3D, porque o html2canvas-pro achata matrix3d no export.
+// Toda inclinação usa só rotação 2D, que é fiel no PNG.
+function deviceScreen(m) {
+  const inner = m.image
+    ? `<img class="dev__img" src="${m.image}" alt="">`
+    : `<div class="dev__ph"><span>adicione uma imagem</span></div>`;
+  return `<div class="dev__screen">${inner}<div class="dev__glare"></div></div>`;
+}
+// Retorna só o dispositivo (.dev), com bisel, botões e tela. Sem posicionamento.
+export function deviceHTML(mockup) {
+  const m = mockup && DEVICE_TYPES.has(mockup.type) ? mockup : null;
+  if (!m) return "";
+  const angle = ["left", "right"].includes(m.angle) ? m.angle : "frontal";
+  const top = m.type === "tablet"
+    ? `<div class="dev__cam"></div>`
+    : `<div class="dev__island"></div>`;
+  return `<div class="dev dev--${m.type}" data-angle="${angle}">
+      <span class="dev__side dev__side--power"></span>
+      <span class="dev__side dev__side--volup"></span>
+      <span class="dev__side dev__side--voldn"></span>
+      ${top}${deviceScreen(m)}
+    </div>`;
+}
+// Camada de overlay para colocar o dispositivo por cima de qualquer template.
+export function renderMockupOverlay(mockup) {
+  const dev = deviceHTML(mockup);
+  if (!dev) return "";
+  const pos = ["center", "left", "right", "bottom"].includes(mockup.pos) ? mockup.pos : "center";
+  const size = Number(mockup.size) > 0 ? Number(mockup.size) : 1;
+  return `<div class="mockup mockup--${pos}" style="--dev-size:${size}">${dev}</div>`;
+}
 
 // linhas → itens (fallback quando o modelo não mandou itens[])
 const linesOf = (s) => (s.itens?.length ? s.itens : String(s.body || "").split(/\n|·|•/).map((x) => x.trim()).filter(Boolean));
@@ -183,6 +218,17 @@ const R = {
     <div class="bula__badge">${esc(s.kicker || "atenção")}</div>
     <h2 class="tpl-headline bula__hl">${hl(s.headline, s.destaque)}</h2>
     ${s.body ? `<p class="tpl-body">${esc(s.body)}</p>` : ""}`,
+
+  // Showcase: o dispositivo é o herói. Texto compacto em cima, device no centro.
+  showcase: (s) => {
+    const m = (s.mockup && DEVICE_TYPES.has(s.mockup.type)) ? s.mockup : { ...(s.mockup || {}), type: "phone" };
+    const size = Number(m.size) > 0 ? Number(m.size) : 1;
+    return `
+      ${s.kicker ? `<p class="tpl-kicker">${esc(s.kicker)}</p>` : ""}
+      ${s.headline ? `<h2 class="tpl-headline show__hl">${hl(s.headline, s.destaque)}</h2>` : ""}
+      <div class="show__stage" data-dev="${m.type}" style="--dev-size:${size}">${deviceHTML(m)}</div>
+      ${s.body ? `<p class="tpl-body show__body">${esc(s.body)}</p>` : ""}`;
+  },
 };
 
 // Constrói o elemento .slide completo a partir do slide (dados).
@@ -196,6 +242,11 @@ export function renderSlide(slide, ctx = {}) {
   const total = ctx.total || 8;
   const chrome = NOCHROME.has(tpl) ? "" : index(ctx.n ?? slide.n, total) + brand(tpl);
   el.innerHTML = R[tpl](slide) + chrome;
+  // Mockup como overlay: vale em qualquer template (menos showcase, que já desenha o
+  // device no próprio layout). Fica absoluto, então não interfere no auto-fit do texto.
+  if (tpl !== "showcase" && slide.mockup && DEVICE_TYPES.has(slide.mockup.type)) {
+    el.insertAdjacentHTML("beforeend", renderMockupOverlay(slide.mockup));
+  }
   return el;
 }
 

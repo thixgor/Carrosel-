@@ -24,6 +24,7 @@ export const TEMPLATES = [
   { id: "mito",        nome: "Mito × Verdade", uso: "quebra de crença" },
   { id: "manchete",    nome: "Manchete",    uso: "verdade proibida / editorial" },
   { id: "bula",        nome: "Alerta",      uso: "erro comum / aviso" },
+  { id: "showcase",    nome: "Mockup",      uso: "produto na tela (celular/tablet 3D)" },
 ];
 
 // Mapa: como cada template consome os campos. O modelo usa isto para o conteúdo caber no layout.

@@ -454,4 +454,125 @@
 .slide[data-ratio="9x16"][data-template="mito"] .mito__band { min-height: 50%; }
 .slide[data-ratio="9x16"][data-template="brutal"] { padding-bottom: var(--pad-slide); }
 
+/* ════════════════════════════════════════════════════════════════════════════
+   19 · SHOWCASE — o dispositivo é o herói (celular/tablet 3D no centro)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.slide[data-template="showcase"] {
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in oklch, var(--color-green-800) 70%, transparent) 0%, transparent 60%),
+    var(--color-green-900);
+  color: var(--color-paper);
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  padding-top: var(--space-24);
+  padding-bottom: var(--space-24);
+}
+.slide[data-template="showcase"] .tpl-kicker { color: var(--color-orange); margin-bottom: var(--space-6); }
+.slide[data-template="showcase"] .show__hl {
+  font-size: 82px; line-height: 0.92; color: var(--color-paper); max-width: 20ch;
+}
+.slide[data-template="showcase"] .show__hl .tpl-destaque { color: var(--color-orange); }
+.slide[data-template="showcase"] .show__stage {
+  flex: 1 1 0; min-height: 0; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;                 /* device grande é aparado, nunca estoura o slide */
+  margin-top: var(--space-12);
+}
+/* no showcase o device é dimensionado pela ALTURA, pra encaixar celular e tablet */
+.slide[data-template="showcase"] .show__stage .dev { width: auto; }
+.slide[data-template="showcase"] .show__stage .dev--phone  { height: calc(900px * var(--dev-size, 1)); }
+.slide[data-template="showcase"] .show__stage .dev--tablet { height: calc(920px * var(--dev-size, 1)); }
+.slide[data-template="showcase"] .show__body {
+  margin-top: var(--space-10); max-width: 28ch;
+  color: color-mix(in oklch, var(--color-paper) 82%, transparent);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   MOCKUPS — dispositivos 3D fotorrealistas (usados no showcase e como overlay)
+   Realismo por material: bisel metálico com luz no topo-esquerdo, vidro com brilho
+   diagonal, sombra de contato. Sem transform 3D (o export achata) — só rotação 2D.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.mockup { position: absolute; z-index: 5; pointer-events: none; }
+.mockup--center { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.mockup--left   { left: 64px; top: 50%; transform: translateY(-50%); }
+.mockup--right  { right: 64px; top: 50%; transform: translateY(-50%); }
+.mockup--bottom { left: 50%; bottom: -7%; transform: translateX(-50%); }
+.mockup .dev--phone  { width: calc(430px * var(--dev-size, 1)); }
+.mockup .dev--tablet { width: calc(720px * var(--dev-size, 1)); }
+
+/* corpo do aparelho — moldura metálica */
+.dev {
+  position: relative;
+  box-sizing: border-box;
+  padding: var(--dev-bezel);
+  border-radius: var(--dev-radius);
+  /* rim de titânio: luz vindo do topo-esquerdo */
+  background:
+    linear-gradient(135deg, #4b4e55 0%, #17191d 16%, #0b0c0f 50%, #17191d 84%, #52555c 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.30),          /* brilho fino da borda superior */
+    inset 0 0 0 2px rgba(255,255,255,0.05),
+    0 0 0 3px #050506,                                /* aro polido externo */
+    0 2px 2px rgba(0,0,0,0.4),
+    0 34px 64px -18px rgba(0,0,0,0.62),               /* sombra de chão suave */
+    0 14px 30px -12px rgba(0,0,0,0.5);
+}
+.dev[data-angle="left"]  { transform: rotate(-5.5deg); }
+.dev[data-angle="right"] { transform: rotate(5.5deg); }
+
+.dev--phone  { --dev-radius: 74px; --dev-bezel: 15px; aspect-ratio: 1080 / 2214; }
+.dev--tablet { --dev-radius: 52px; --dev-bezel: 26px; aspect-ratio: 1640 / 2200; }
+
+/* tela */
+.dev__screen {
+  position: relative;
+  width: 100%; height: 100%;
+  border-radius: calc(var(--dev-radius) - var(--dev-bezel));
+  overflow: hidden;
+  background: #05060a;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.85), inset 0 0 26px rgba(0,0,0,0.55);
+}
+.dev__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dev__ph {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 12%; box-sizing: border-box;
+  background: linear-gradient(160deg, #2b2f36 0%, #14161b 100%);
+  color: color-mix(in oklch, var(--color-paper) 55%, transparent);
+  font: 500 34px/1.3 var(--font-sans);
+}
+/* brilho de vidro diagonal por cima da tela → sensação de superfície real */
+.dev__glare {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(122deg,
+    rgba(255,255,255,0.22) 0%,
+    rgba(255,255,255,0.06) 20%,
+    rgba(255,255,255,0) 40%,
+    rgba(255,255,255,0) 100%);
+}
+
+/* dynamic island (celular) e câmera (tablet) */
+.dev__island {
+  position: absolute; top: calc(var(--dev-bezel) + 10px); left: 50%; transform: translateX(-50%);
+  width: 27%; height: 3.1%; min-height: 22px;
+  background: #000; border-radius: var(--radius-pill); z-index: 3;
+  box-shadow: inset 0 0 4px rgba(255,255,255,0.16);
+}
+.dev__cam {
+  position: absolute; top: calc(var(--dev-bezel) / 2 - 1px); left: 50%; transform: translateX(-50%);
+  width: 13px; height: 13px; border-radius: 50%; z-index: 3;
+  background: radial-gradient(circle at 35% 30%, #2a3340 0%, #0a0c10 60%);
+  box-shadow: inset 0 0 2px rgba(255,255,255,0.35);
+}
+
+/* botões físicos na lateral metálica */
+.dev__side { position: absolute; background: linear-gradient(180deg, #0a0b0d, #303338 45%, #0a0b0d); border-radius: 2px; }
+.dev--phone .dev__side--power { right: -3px; top: 30%;  width: 4px; height: 11%; }
+.dev--phone .dev__side--volup { left: -3px;  top: 25%;  width: 4px; height: 8%; }
+.dev--phone .dev__side--voldn { left: -3px;  top: 35%;  width: 4px; height: 8%; }
+.dev--tablet .dev__side--power { top: -3px; right: 20%; width: 10%; height: 4px; }
+.dev--tablet .dev__side--volup { top: -3px; right: 34%; width: 7%;  height: 4px; }
+.dev--tablet .dev__side--voldn { display: none; }
+
 /* CTA/terminal/brutal/lista/oferta/revelacao use the dark logo variant (set in JS via data-surface) */

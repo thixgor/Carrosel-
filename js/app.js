@@ -319,7 +319,98 @@ function openEditor(i) {
       slide.itens = v.split("\n").map((x) => x.trim()).filter(Boolean); liveUpdate(i);
     }));
   }
+  body.appendChild(editMockup(slide, () => liveUpdate(i)));
   showDrawer("drawer");
+}
+
+// ─── Editor de mockup (celular / tablet 3D) ─────────────────────────────────────
+const MK_DEFAULT = { type: "", image: "", pos: "center", size: 1, angle: "frontal" };
+function editMockup(slide, onChange) {
+  const wrap = el("div", "ed ed--mockup", `<label>Mockup de dispositivo</label>`);
+  const typeSel = el("select", "input");
+  typeSel.innerHTML = `<option value="">Nenhum</option><option value="phone">Celular</option><option value="tablet">Tablet</option>`;
+  typeSel.value = slide.mockup?.type || "";
+  wrap.appendChild(typeSel);
+
+  const note = el("small", "field__note",
+    "A imagem entra na tela do aparelho, com moldura 3D realista. Dica: use um print (9:16 no celular, 4:3 no tablet).");
+  wrap.appendChild(note);
+
+  const opts = el("div", "mockup-opts");
+  wrap.appendChild(opts);
+
+  function renderOpts() {
+    opts.innerHTML = "";
+    if (!typeSel.value) return;
+    const m = slide.mockup;
+
+    const up = el("div", "mockup-row", `<span class="mockup-row__lab">Imagem na tela</span>`);
+    const file = el("input"); file.type = "file"; file.accept = "image/*"; file.className = "input";
+    file.addEventListener("change", async (e) => {
+      const f = e.target.files?.[0]; if (!f) return;
+      toast("Carregando imagem…", 8000);
+      try { m.image = await fileToScaledDataURL(f); onChange(); renderOpts(); toast("Imagem no aparelho"); }
+      catch { toast("Não consegui carregar essa imagem"); }
+    });
+    up.appendChild(file);
+    if (m.image) {
+      const rm = el("button", "btn btn--mini", "remover imagem"); rm.type = "button";
+      rm.addEventListener("click", () => { m.image = ""; onChange(); renderOpts(); });
+      up.appendChild(rm);
+    }
+    opts.appendChild(up);
+
+    if (slide.template !== "showcase") {
+      opts.appendChild(mkSelect("Posição", m.pos, [["center", "Centro"], ["left", "Esquerda"], ["right", "Direita"], ["bottom", "Base"]],
+        (v) => { m.pos = v; onChange(); }));
+    }
+    opts.appendChild(mkSelect("Inclinação", m.angle, [["frontal", "Reto"], ["left", "Girado à esquerda"], ["right", "Girado à direita"]],
+      (v) => { m.angle = v; onChange(); }));
+
+    const sz = el("div", "mockup-row", `<span class="mockup-row__lab">Tamanho</span>`);
+    const range = el("input"); range.type = "range"; range.min = "0.5"; range.max = "1.5"; range.step = "0.05";
+    range.value = String(m.size || 1); range.className = "range";
+    range.addEventListener("input", () => { m.size = Number(range.value); onChange(); });
+    sz.appendChild(range);
+    opts.appendChild(sz);
+  }
+
+  typeSel.addEventListener("change", () => {
+    if (!typeSel.value) slide.mockup = null;
+    else slide.mockup = { ...MK_DEFAULT, ...(slide.mockup || {}), type: typeSel.value };
+    onChange(); renderOpts();
+  });
+  renderOpts();
+  return wrap;
+}
+function mkSelect(label, val, pairs, onChange) {
+  const wrap = el("div", "mockup-row", `<span class="mockup-row__lab">${label}</span>`);
+  const sel = el("select", "input");
+  sel.innerHTML = pairs.map(([v, l]) => `<option value="${v}" ${v === val ? "selected" : ""}>${l}</option>`).join("");
+  sel.addEventListener("change", () => onChange(sel.value));
+  wrap.appendChild(sel);
+  return wrap;
+}
+// Reduz a imagem antes de guardar (localStorage tem limite) e mantém nitidez boa na tela.
+function fileToScaledDataURL(file, max = 1400) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("leitura"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("decode"));
+      img.onload = () => {
+        let w = img.naturalWidth, h = img.naturalHeight;
+        const scale = Math.min(1, max / Math.max(w, h));
+        w = Math.max(1, Math.round(w * scale)); h = Math.max(1, Math.round(h * scale));
+        const c = document.createElement("canvas"); c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL("image/jpeg", 0.92));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 function editField(name, val, limit, onInput) {
   const wrap = el("div", "ed");
