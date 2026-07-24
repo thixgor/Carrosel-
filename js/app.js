@@ -1,5 +1,6 @@
 // app.js — estado, formulário, render do deck, ações por slide, persistência.
 import { TEMPLATES, GATILHOS } from "./prompts.js";
+import { DEFAULT_PRESETS } from "./presets.js";
 import { generateCarousel, regenerateSlide } from "./gemini.js";
 import { renderSlide, autoFit, fitToFrame, TEMPLATE_IDS } from "./templates.js";
 import { exportPNG, exportZIP, captionText, copyText, canShareFiles, sharePNGs } from "./export.js";
@@ -59,23 +60,46 @@ function buildTemplateSelect() {
 }
 
 // ─── Presets de produto ─────────────────────────────────────────────────────────
-function presets() { return store.get("da_presets", {}); }
+// Os presets padrão do DomineAqui (DEFAULT_PRESETS) vêm embarcados; os do usuário
+// ficam no localStorage. Apagar um padrão só o esconde (da_presets_hidden), sem
+// perder a possibilidade de restaurar limpando o navegador.
+function userPresets() { return store.get("da_presets", {}); }
+function hiddenDefaults() { return store.get("da_presets_hidden", []); }
+function presets() {
+  const hidden = hiddenDefaults();
+  const defs = {};
+  Object.keys(DEFAULT_PRESETS).forEach((k) => { if (!hidden.includes(k)) defs[k] = DEFAULT_PRESETS[k]; });
+  return { ...defs, ...userPresets() };   // preset do usuário com mesmo nome sobrescreve o padrão
+}
 function buildPresetSelect() {
   const sel = $("presetSel");
-  const p = presets();
-  sel.innerHTML = `<option value="">—</option>` + Object.keys(p).map((n) => `<option>${escapeHtml(n)}</option>`).join("");
+  const hidden = hiddenDefaults();
+  const user = userPresets();
+  const defNames = Object.keys(DEFAULT_PRESETS).filter((n) => !hidden.includes(n) && !(n in user));
+  const userNames = Object.keys(user);
+  const opt = (n) => `<option>${escapeHtml(n)}</option>`;
+  let html = `<option value="">—</option>`;
+  if (defNames.length) html += `<optgroup label="DomineAqui (padrão)">${defNames.map(opt).join("")}</optgroup>`;
+  if (userNames.length) html += `<optgroup label="Meus presets">${userNames.map(opt).join("")}</optgroup>`;
+  sel.innerHTML = html;
 }
 function wirePresets() {
   $("presetSel").addEventListener("change", (e) => { const p = presets()[e.target.value]; if (p) fillForm(p); });
   $("presetSave").addEventListener("click", () => {
     const name = prompt("Nome do preset:", $("produto").value.slice(0, 40));
     if (!name) return;
-    const p = presets(); p[name] = collectInput(); store.set("da_presets", p); buildPresetSelect(); $("presetSel").value = name;
+    const p = userPresets(); p[name] = collectInput(); store.set("da_presets", p); buildPresetSelect(); $("presetSel").value = name;
     toast("Preset salvo");
   });
   $("presetDel").addEventListener("click", () => {
     const name = $("presetSel").value; if (!name) return;
-    const p = presets(); delete p[name]; store.set("da_presets", p); buildPresetSelect();
+    const user = userPresets();
+    if (name in user) { delete user[name]; store.set("da_presets", user); }
+    else if (name in DEFAULT_PRESETS) {
+      const hidden = hiddenDefaults();
+      if (!hidden.includes(name)) { hidden.push(name); store.set("da_presets_hidden", hidden); }
+    }
+    buildPresetSelect();
   });
 }
 
