@@ -18,6 +18,32 @@ Um único deploy resolve tudo: o `server.js` serve o site **e** esconde a chave 
 
 Os ícones já vêm gerados em `assets/icons/`, então o `sharp` não roda no servidor. Só rode `npm run icons` de novo se trocar a logo.
 
+## Deploy na Vercel (grátis)
+
+A Vercel não roda um servidor Express fixo — ela serve o site como **estático** e a
+API como **função serverless**. O projeto já vem pronto para isso:
+
+- `vercel.json` — diz à Vercel para servir os arquivos estáticos e mandar `/` para o `index.html`.
+- `api/generate.js` — a função que esconde a chave e fala com o Gemini (equivale ao `/api/generate` do `server.js`).
+- `vendor/` — as libs (`html2canvas`, `jszip`) versionadas, porque na Vercel não existe `node_modules` servido em runtime.
+
+Passos:
+
+1. Suba o projeto para o GitHub (o `.env` fica de fora pelo `.gitignore`).
+2. Em https://vercel.com, **Add New → Project** e importe o repositório.
+3. Não precisa mudar Build/Output — o `vercel.json` cuida disso. Deixe o **Framework Preset** como **Other**.
+4. Em **Settings → Environment Variables**, adicione:
+   - `GEMINI_API_KEY` = sua chave
+   - `GEMINI_MODEL` = `gemini-3.6-flash`
+5. **Deploy** (ou **Redeploy** se já tinha subido antes de criar as variáveis — a chave só entra num deploy novo).
+
+Teste rápido depois do deploy: abra `https://seu-app.vercel.app/api/health` — deve responder
+`{"ok":true,...,"hasKey":true}`. Se `hasKey` vier `false`, a variável não foi salva ou faltou o redeploy.
+
+> **"Cannot GET /"** na Vercel significa que ela tentou rodar o `server.js` como servidor em vez
+> de servir o site. O `vercel.json` deste repositório corrige isso. O `server.js` continua valendo
+> só para desenvolvimento local (`npm start`).
+
 ## Instalar no iPhone
 
 1. Abra a URL no **Safari** do iPhone (tem que ser Safari, não Chrome).
