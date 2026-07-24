@@ -1,6 +1,6 @@
 // sw.js — service worker do PWA. Cacheia o app shell (funciona offline);
 // nunca cacheia a API do Gemini. Suba o número da versão a cada deploy.
-const VERSION = "domineaqui-v2";
+const VERSION = "domineaqui-v3";
 
 const ASSETS = [
   "/", "/index.html", "/manifest.json",
